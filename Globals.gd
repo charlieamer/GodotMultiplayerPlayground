@@ -4,7 +4,7 @@ extends Node
 # Value is array of possible scenes for the game, where the first scene is the
 #   default one. The way to get scene resource is res://Scenes/[GameName]/[SceneName].tscn
 export var Scenes = {
-	"Tic Tac Toe": ["Lobby"]
+	"Tic Tac Toe": ["Lobby", "In game"]
 }
 export var CurrentSceneIndex = -1
 export var CurrentGame = ""
@@ -14,7 +14,15 @@ signal scene_is_ready()
 signal client_connecting_finished(error)
 signal player_info_changed(new_player_info)
 
+# network_id: {
+#     player_name -> String
+#     team?: -> Integer
+# }
 export var player_info = {}
+# team_id: {
+#     name -> String
+#     max_size -> Integer
+# }
 export var teams = {}
 
 func _ready():
@@ -28,7 +36,9 @@ func _player_connected(id):
     pass
 
 func _player_disconnected(id):
-	pass
+	get_scene_as_game().on_player_left(id, player_info[id])
+	player_info.erase(id)
+	all_player_info_updated(player_info)
 
 func _connected_ok():
 	rpc_id(1, "server_got_player_info", {
@@ -36,14 +46,19 @@ func _connected_ok():
 	})
 
 func _server_disconnected():
-    pass
+	client_kicked(false, "Server disconnected")
 
 func _connected_fail():
 	emit_signal("client_connecting_finished", "Connection failed")
 	
+func abort_game():
+	client_kicked(false, "")
+	
 remote func client_kicked(at_join_time: bool, reason: String):
 	if at_join_time:
 		emit_signal("client_connecting_finished", "Kicked: " + reason)
+	else:
+		get_tree().change_scene("res://Scenes/StartScene/StartScene.tscn")
 	get_tree().set_network_peer(null)
 
 func get_scene_as_game() -> SceneBase:
@@ -108,19 +123,22 @@ remote func server_got_player_info(single_player_info, use_rpcs = true):
 	else:
 		client_player_confirmed(player_info, CurrentGame, 0)
 
-func get_game_default_scene_path(game_name: String, extension: String) -> String:
-	return "res://Scenes/" + game_name + "/" + Scenes[game_name][0] + "." + extension
+func get_game_scene_path(game_name: String, extension: String, index: int) -> String:
+	return "res://Scenes/" + game_name + "/" + Scenes[game_name][index] + "." + extension
+	
+func load_next_scene():
+	rpc("change_scene", ((CurrentSceneIndex + 1) % len(Scenes[CurrentGame])))
 
-func change_scene(new_scene_number: int):
+sync func change_scene(new_scene_number: int):
 	CurrentSceneIndex = new_scene_number
-	var err = get_tree().change_scene(get_game_default_scene_path(CurrentGame, "tscn"))
+	var err = get_tree().change_scene(get_game_scene_path(CurrentGame, "tscn", new_scene_number))
 	if err != OK:
 		print("Error changing scene: " + err)
 	yield(self, "scene_is_ready")
 
 func create_game(game_name: String, port: int) -> String:
 	if Scenes.has(game_name):
-		var game_scene : SceneBase = load(get_game_default_scene_path(game_name, "gd")).new()
+		var game_scene : SceneBase = load(get_game_scene_path(game_name, "gd", 0)).new()
 		var peer = NetworkedMultiplayerENet.new()
 		var err = peer.create_server(port, 10)
 		if (err == ERR_ALREADY_IN_USE):
