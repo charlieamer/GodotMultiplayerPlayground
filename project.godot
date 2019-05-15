@@ -13,9 +13,15 @@ _global_script_classes=[ {
 "class": "SceneBase",
 "language": "GDScript",
 "path": "res://Scenes/SceneBase.gd"
+}, {
+"base": "Area2D",
+"class": "TTTSingleField",
+"language": "GDScript",
+"path": "res://Scenes/Tic Tac Toe/SingleField.gd"
 } ]
 _global_script_class_icons={
-"SceneBase": ""
+"SceneBase": "",
+"TTTSingleField": ""
 }
 
 [application]

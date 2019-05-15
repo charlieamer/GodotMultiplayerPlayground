@@ -1,8 +1,10 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Scenes/Tic Tac Toe/In game.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/Tic Tac Toe/TTTTurnLogic.gd" type="Script" id=2]
-
+[ext_resource path="res://Scenes/Fonts/DefaultFont.tres" type="DynamicFont" id=3]
+[ext_resource path="res://Scenes/Tic Tac Toe/Images/tic-tac-toe.png" type="Texture" id=4]
+[ext_resource path="res://Scenes/Tic Tac Toe/SingleField.tscn" type="PackedScene" id=5]
 
 [node name="Node2D" type="Node2D"]
 script = ExtResource( 1 )
@@ -10,3 +12,45 @@ script = ExtResource( 1 )
 [node name="TurnLogic" type="Node" parent="."]
 script = ExtResource( 2 )
 
+[node name="CurrentPlayingLabel" type="Label" parent="."]
+anchor_right = 1.0
+margin_right = 1024.0
+margin_bottom = 50.0
+custom_fonts/font = ExtResource( 3 )
+text = "Player 1 plays as X"
+align = 1
+valign = 1
+
+[node name="grid" type="Sprite" parent="."]
+position = Vector2( 526, 362 )
+scale = Vector2( 0.816406, 0.816406 )
+texture = ExtResource( 4 )
+
+[node name="1" parent="grid" instance=ExtResource( 5 )]
+position = Vector2( -173, -173 )
+
+[node name="2" parent="grid" instance=ExtResource( 5 )]
+position = Vector2( 1, -178 )
+
+[node name="3" parent="grid" instance=ExtResource( 5 )]
+position = Vector2( 169, -178 )
+
+[node name="4" parent="grid" instance=ExtResource( 5 )]
+position = Vector2( -171, -5 )
+
+[node name="5" parent="grid" instance=ExtResource( 5 )]
+position = Vector2( -1, -1 )
+
+[node name="6" parent="grid" instance=ExtResource( 5 )]
+position = Vector2( 172, -2 )
+
+[node name="7" parent="grid" instance=ExtResource( 5 )]
+position = Vector2( -172, 171 )
+
+[node name="8" parent="grid" instance=ExtResource( 5 )]
+position = Vector2( 0, 170 )
+
+[node name="9" parent="grid" instance=ExtResource( 5 )]
+position = Vector2( 172, 171 )
+
+[connection signal="team_play_change" from="TurnLogic" to="." method="_on_TurnLogic_team_play_change"]

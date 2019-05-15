@@ -8,6 +8,7 @@ export var Scenes = {
 }
 export var CurrentSceneIndex = -1
 export var CurrentGame = ""
+export var TeamColors = [Color("#2ecc71"), Color("#e74c3c")]
 
 signal scene_is_ready()
 
@@ -93,6 +94,7 @@ func get_players_in_team(team_id):
 	
 sync func all_player_info_updated(new_player_info):
 	player_info = new_player_info
+	print("Player info changed: " + str(player_info))
 	emit_signal("player_info_changed", player_info)
 
 remote func client_player_confirmed(all_players_info, current_game_id: String, current_scene_id: int):
@@ -116,7 +118,6 @@ remote func server_got_player_info(single_player_info, use_rpcs = true):
 		rpc_id(new_player_network_id, "client_kicked", true, join_error)
 		player_info.erase(new_player_network_id)
 		return
-	print("All players now: " + str(player_info))
 	if use_rpcs:
 		rpc_id(get_tree().get_rpc_sender_id(), "client_player_confirmed", player_info, CurrentGame, CurrentSceneIndex)
 		rpc("all_player_info_updated", player_info)
@@ -177,3 +178,9 @@ func is_okay(err):
 
 func register_scene_loaded():
 	emit_signal("scene_is_ready")
+
+func get_real_caller_player_id():
+	var player_id = get_tree().get_rpc_sender_id() if get_tree().is_network_server() else get_tree().get_network_unique_id()
+	if player_id == 0:
+		player_id = 1
+	return player_id
