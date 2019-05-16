@@ -27,4 +27,4 @@ sync func set_state(new_state: int, team_id: int):
 
 func _input_event(viewport, event, shape_idx):
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and event.pressed:
-		Globals.get_scene_as_game().get_node("./TurnLogic").try_play_turn(get_name().to_int())
+		Globals.get_scene_as_game().get_logic().try_play_turn(get_name().to_int())

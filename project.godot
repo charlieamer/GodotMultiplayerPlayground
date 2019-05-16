@@ -10,6 +10,16 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Node",
+"class": "LogicBase",
+"language": "GDScript",
+"path": "res://Scenes/LogicBase.gd"
+}, {
+"base": "Node",
+"class": "RoundsBase",
+"language": "GDScript",
+"path": "res://Scenes/RoundsBase.gd"
+}, {
+"base": "Node",
 "class": "SceneBase",
 "language": "GDScript",
 "path": "res://Scenes/SceneBase.gd"
@@ -18,10 +28,18 @@ _global_script_classes=[ {
 "class": "TTTSingleField",
 "language": "GDScript",
 "path": "res://Scenes/Tic Tac Toe/SingleField.gd"
+}, {
+"base": "LogicBase",
+"class": "TurnLogicBase",
+"language": "GDScript",
+"path": "res://Scenes/TurnLogicBase.gd"
 } ]
 _global_script_class_icons={
+"LogicBase": "",
+"RoundsBase": "",
 "SceneBase": "",
-"TTTSingleField": ""
+"TTTSingleField": "",
+"TurnLogicBase": ""
 }
 
 [application]

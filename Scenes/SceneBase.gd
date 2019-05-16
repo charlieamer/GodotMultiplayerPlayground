@@ -17,3 +17,9 @@ func on_player_joined(new_player_id, new_player_info):
 	
 func on_player_left(old_player_id, old_player_info):
 	pass
+
+func get_logic() -> LogicBase:
+	return $Logic as LogicBase
+
+func get_rounds() -> RoundsBase:
+	return $Rounds as RoundsBase

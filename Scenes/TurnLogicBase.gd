@@ -1,14 +1,14 @@
-extends Node
+extends LogicBase
+
+class_name TurnLogicBase
 
 sync var current_team_id: int
 signal team_play_change(new_team_id)
 
-enum turn_result { PLAY_NEXT, DONT_PLAY_NEXT, WIN }
+enum turn_result { PLAY_NEXT, DONT_PLAY_NEXT, FINISH }
 
 func _ready():
 	assert(get_game() != null)
-	init_round()
-	set_play_team(Globals.teams.keys()[0])
 	
 func set_play_next_team():
 	var current_team_key_index = Globals.teams.keys().find(current_team_id)
@@ -16,13 +16,12 @@ func set_play_next_team():
 	set_play_team(next_key)
 	
 func set_play_team(team_id):
-	if get_tree().is_network_server():
-		rpc("on_next_team_plays", team_id)
-	else:
-		on_next_team_plays(team_id)
+	assert(get_tree().is_network_server())
+	rpc("on_next_team_plays", team_id)
 	
 func can_play_turn(data, player_id: int) -> bool:
-	return Globals.player_info[player_id].team == current_team_id
+	return Globals.player_info[player_id].team == current_team_id and\
+			Globals.get_scene_as_game().get_rounds().current_round_status == RoundsBase.round_status.PLAYING
 
 sync func on_next_team_plays(next_team_id: int):
 	current_team_id = next_team_id
@@ -38,9 +37,8 @@ master func try_play_turn(data):
 			var play_result = do_play_turn(data, player_id)
 			if play_result.result == turn_result.PLAY_NEXT:
 				set_play_next_team()
-
-sync func init_round():
-	pass
+			elif play_result.result == turn_result.FINISH:
+				Globals.get_scene_as_game().get_rounds().finish_round(play_result["winner_team"])
 
 func get_game() -> SceneBase:
 	return get_parent() as SceneBase

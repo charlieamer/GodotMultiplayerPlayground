@@ -184,3 +184,10 @@ func get_real_caller_player_id():
 	if player_id == 0:
 		player_id = 1
 	return player_id
+
+func get_team_name(team_id: int) -> String:
+	var players_in_team = get_players_in_team(team_id)
+	if len(players_in_team) == 1:
+		return player_info[players_in_team[0]].player_name
+	else:
+		return teams[team_id].name
